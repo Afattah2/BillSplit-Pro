@@ -3,6 +3,7 @@ export interface ReceiptItem {
   id: string;
   name: string;
   price: number;
+  quantity: number;
 }
 
 export interface ReceiptData {
@@ -19,5 +20,6 @@ export interface Person {
 
 export interface ItemAssignment {
   itemId: string;
-  personIds: string[];
+  // Map of personId to number of portions/units they consumed
+  portions: Record<string, number>;
 }

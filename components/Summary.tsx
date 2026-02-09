@@ -29,14 +29,19 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
 
   const totals = people.map(person => {
     let personalSubtotal = 0;
-    const itemBreakdown: { name: string; share: number }[] = [];
+    const itemBreakdown: { name: string; share: number; portions: number; quantity: number }[] = [];
 
     receiptData.items.forEach(item => {
       const assignment = assignments.find(a => a.itemId === item.id);
-      if (assignment?.personIds.includes(person.id)) {
-        const share = item.price / assignment.personIds.length;
-        personalSubtotal += share;
-        itemBreakdown.push({ name: item.name, share });
+      if (assignment) {
+        const personPortions = assignment.portions[person.id] || 0;
+        if (personPortions > 0) {
+          // Fix: Explicitly cast Object.values to number[] to ensure totalPortions is a number
+          const totalPortions = (Object.values(assignment.portions) as number[]).reduce((a, b) => a + b, 0);
+          const share = (item.price / totalPortions) * personPortions;
+          personalSubtotal += share;
+          itemBreakdown.push({ name: item.name, share, portions: personPortions, quantity: item.quantity });
+        }
       }
     });
 
@@ -55,13 +60,16 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
     };
   });
 
-  const totalAccounted = totals.reduce((sum, t) => sum + t.total, 0);
+  // Fix: Explicitly type the accumulator as number to prevent operator '+' errors on unknown types
+  const totalAccounted = totals.reduce((sum: number, t) => sum + t.total, 0);
   const remainingToAssign = Math.max(0, receiptData.total - totalAccounted);
   const isFullyAssigned = remainingToAssign < 0.05;
 
   const unassignedItems = receiptData.items.filter(item => {
     const assignment = assignments.find(a => a.itemId === item.id);
-    return !assignment || assignment.personIds.length === 0;
+    // Fix: Cast Object.values to number[] to ensure totalPortions calculation is valid
+    const totalPortions = (Object.values(assignment?.portions || {}) as number[]).reduce((a, b) => a + b, 0);
+    return totalPortions === 0;
   });
 
   const handleSharePDF = async () => {
@@ -137,7 +145,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           </div>
         </div>
         <div className="space-y-1">
-          <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight block py-1 leading-tight arabic-shaping">
+          <h2 className="text-4xl sm:text-5xl font-black text-black tracking-tight block py-1 leading-tight arabic-shaping">
             الحساب يجمع
           </h2>
           <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 block py-1 leading-tight">
@@ -166,7 +174,9 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
                 items.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-start overflow-visible border-b border-slate-50/50 last:border-0 pb-2 last:pb-0 gap-4">
                     <span className="text-base sm:text-lg text-slate-500 font-bold break-words leading-relaxed">
-                      {item.name}
+                      {item.name} 
+                      {item.quantity > 1 && <span className="text-xs text-slate-400 ml-1 italic"> (total x{item.quantity})</span>}
+                      {item.portions > 1 && <span className="text-xs text-indigo-400 bg-indigo-50 px-2 py-0.5 rounded-full align-middle ml-2">x{item.portions} shared</span>}
                     </span>
                     <span className="text-base sm:text-lg font-mono tabular-nums font-black text-slate-800 shrink-0">
                       EGP {item.share.toFixed(2)}
@@ -209,7 +219,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
               <p className="text-xs font-black text-amber-600/70 uppercase tracking-[0.2em] mb-4">Unassigned items:</p>
               {unassignedItems.map(item => (
                 <div key={item.id} className="flex justify-between items-start gap-4 text-sm sm:text-base text-amber-800 font-bold overflow-visible">
-                  <span className="break-words leading-relaxed">{item.name}</span>
+                  <span className="break-words leading-relaxed">{item.name} {item.quantity > 1 && <span className="text-xs opacity-60">(x{item.quantity})</span>}</span>
                   <span className="font-mono shrink-0 font-black">EGP {item.price.toFixed(2)}</span>
                 </div>
               ))}
@@ -218,7 +228,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
         )}
       </div>
 
-      <div className={`p-10 sm:p-16 rounded-[4rem] mt-16 text-center shadow-3xl transition-all duration-1000 overflow-visible ${isFullyAssigned ? 'bg-[#0f172a] text-white' : 'bg-white border-4 border-slate-100 text-slate-900'}`}>
+      <div className={`p-10 sm:p-16 rounded-[4rem] mt-16 text-center shadow-3xl transition-all duration-1000 overflow-visible ${isFullyAssigned ? 'bg-[#0f172a] text-white' : 'bg-white border-4 border-slate-100 text-black'}`}>
         <div className={`uppercase text-[12px] font-black tracking-[0.4em] mb-6 ${isFullyAssigned ? 'text-indigo-400' : 'text-slate-400'}`}>
           {isFullyAssigned ? 'Split Successful' : 'Progress'}
         </div>
@@ -237,7 +247,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           <div className="flex flex-col gap-4 overflow-visible pb-10">
              <div className="flex items-center justify-center gap-4 text-lg font-black">
               <span className={`${isFullyAssigned ? 'text-slate-400' : 'text-slate-500'}`}>Grand Total:</span>
-              <span className={`font-mono text-2xl ${isFullyAssigned ? 'text-white' : 'text-slate-900'}`}>EGP {receiptData.total.toFixed(2)}</span>
+              <span className={`font-mono text-2xl ${isFullyAssigned ? 'text-white' : 'text-black'}`}>EGP {receiptData.total.toFixed(2)}</span>
             </div>
 
             {!isFullyAssigned && (

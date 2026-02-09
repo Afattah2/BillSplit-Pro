@@ -16,7 +16,7 @@ export const extractReceiptData = async (base64Image: string): Promise<ReceiptDa
           },
         },
         {
-          text: "Analyze this receipt and extract EVERY SINGLE item listed. Do not summarize or skip any items. Extract: 1. A full list of items with their individual names and exact prices. 2. The total tax amount. 3. Any service charges or fees. 4. The grand total at the bottom. The output must be valid JSON.",
+          text: "Analyze this receipt and extract EVERY SINGLE item listed. Do not summarize or skip any items. Extract: 1. A full list of items with their individual names, quantities (how many of this item were bought), and exact prices (total price for that line item). 2. The total tax amount. 3. Any service charges or fees. 4. The grand total at the bottom. The output must be valid JSON.",
         },
       ],
     },
@@ -31,9 +31,10 @@ export const extractReceiptData = async (base64Image: string): Promise<ReceiptDa
               type: Type.OBJECT,
               properties: {
                 name: { type: Type.STRING },
+                quantity: { type: Type.NUMBER, description: "The number of units of this item. Default to 1 if not specified." },
                 price: { type: Type.NUMBER },
               },
-              required: ["name", "price"],
+              required: ["name", "price", "quantity"],
             },
           },
           tax: { type: Type.NUMBER },

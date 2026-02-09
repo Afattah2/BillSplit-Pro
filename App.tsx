@@ -34,7 +34,8 @@ const App: React.FC = () => {
     try {
       const data = await extractReceiptData(base64);
       setReceiptData(data);
-      setAssignments(data.items.map(item => ({ itemId: item.id, personIds: [] })));
+      // Initialize assignments with empty portions
+      setAssignments(data.items.map(item => ({ itemId: item.id, portions: {} })));
       setCurrentStep(Step.PEOPLE);
     } catch (err) {
       setError("Failed to process receipt. Please try another photo.");
@@ -59,22 +60,67 @@ const App: React.FC = () => {
 
   const removePerson = (id: string) => {
     setPeople(people.filter(p => p.id !== id));
-    setAssignments(assignments.map(a => ({
-      ...a,
-      personIds: a.personIds.filter(pid => pid !== id)
-    })));
+    setAssignments(assignments.map(a => {
+      const newPortions = { ...a.portions };
+      delete newPortions[id];
+      return { ...a, portions: newPortions };
+    }));
+  };
+
+  const updatePortion = (itemId: string, personId: string, delta: number) => {
+    const item = receiptData?.items.find(i => i.id === itemId);
+    const maxQuantity = item?.quantity || 1;
+
+    setAssignments(prev => prev.map(a => {
+      if (a.itemId === itemId) {
+        const otherPortionsTotal = (Object.entries(a.portions) as [string, number][])
+          .filter(([pid]) => pid !== personId)
+          .reduce((sum, [, qty]) => sum + qty, 0);
+
+        const currentCount = a.portions[personId] || 0;
+        let newCount = currentCount + delta;
+
+        // Limit checking: cannot exceed item quantity
+        if (newCount + otherPortionsTotal > maxQuantity) {
+            newCount = maxQuantity - otherPortionsTotal;
+        }
+        
+        newCount = Math.max(0, newCount);
+        
+        const newPortions = { ...a.portions };
+        if (newCount === 0) {
+          delete newPortions[personId];
+        } else {
+          newPortions[personId] = newCount;
+        }
+        
+        return { ...a, portions: newPortions };
+      }
+      return a;
+    }));
   };
 
   const toggleAssignment = (itemId: string, personId: string) => {
+    const item = receiptData?.items.find(i => i.id === itemId);
+    const maxQuantity = item?.quantity || 1;
+
     setAssignments(prev => prev.map(a => {
       if (a.itemId === itemId) {
-        const exists = a.personIds.includes(personId);
-        return {
-          ...a,
-          personIds: exists 
-            ? a.personIds.filter(pid => pid !== personId) 
-            : [...a.personIds, personId]
-        };
+        const isAssigned = !!a.portions[personId];
+        const currentTotal = (Object.values(a.portions) as number[]).reduce((a, b) => a + b, 0);
+        
+        const newPortions = { ...a.portions };
+        
+        if (isAssigned) {
+          delete newPortions[personId];
+        } else {
+          // Only add if there's room left in the item's total quantity
+          if (currentTotal < maxQuantity) {
+             newPortions[personId] = 1;
+          }
+        }
+        
+        return { ...a, portions: newPortions };
       }
       return a;
     }));
@@ -157,7 +203,7 @@ const App: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div>
                   <h2 className="text-xl font-black text-slate-900">Assign Items</h2>
-                  <p className="text-slate-500 text-xs">Cost is split equally between selected people.</p>
+                  <p className="text-slate-500 text-xs">Portions are limited to item quantity. Add +/- to adjust units.</p>
                 </div>
                 {capturedImage && (
                   <button 
@@ -185,6 +231,7 @@ const App: React.FC = () => {
                   people={people}
                   assignments={assignments}
                   onToggleAssignment={toggleAssignment}
+                  onUpdatePortion={updatePortion}
                 />
               )}
             </div>
@@ -282,7 +329,6 @@ const App: React.FC = () => {
           : 'bg-white/80 backdrop-blur-md border-slate-100 shadow-sm'
       }`}>
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3">
-          {/* Back button area */}
           <div className="relative h-8 flex items-center">
             {currentStep !== Step.CAPTURE && (
               <div 
@@ -303,10 +349,7 @@ const App: React.FC = () => {
             )}
           </div>
 
-          {/* Logo + App Name Container */}
-          <div className={`flex items-center gap-2 transition-all duration-500 ${
-            currentStep === Step.CAPTURE ? 'translate-y-0' : 'translate-y-0'
-          }`}>
+          <div className="flex items-center gap-2">
             <div className={`flex items-center justify-center rounded-lg transition-all duration-500 ${
               currentStep === Step.CAPTURE ? 'w-8 h-8 sm:w-9 sm:h-9 bg-indigo-600 shadow-[0_4px_12px_rgba(79,70,229,0.5)]' : 'w-7 h-7 sm:w-8 sm:h-8 bg-indigo-600'
             }`}>
@@ -315,7 +358,7 @@ const App: React.FC = () => {
               </svg>
             </div>
             <h1 className={`text-xl font-black tracking-tight transition-all duration-500 ${
-              currentStep === Step.CAPTURE ? 'text-white drop-shadow-md' : 'text-slate-900'
+              currentStep === Step.CAPTURE ? 'text-white drop-shadow-md' : 'text-black'
             }`}>
               الحساب يجمع
             </h1>
@@ -327,8 +370,8 @@ const App: React.FC = () => {
         {renderContent()}
       </main>
       
-      <footer className="py-8 text-center text-slate-300 text-[10px] font-black uppercase tracking-widest">
-        الحساب يجمع &bull; {new Date().getFullYear()}
+      <footer className="py-8 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">
+        <span className="text-black/40">الحساب يجمع</span> &bull; {new Date().getFullYear()}
       </footer>
 
       <style>{`

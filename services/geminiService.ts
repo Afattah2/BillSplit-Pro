@@ -16,7 +16,7 @@ export const extractReceiptData = async (base64Image: string): Promise<ReceiptDa
           },
         },
         {
-          text: "Extract the items, prices, tax, and service charge from this receipt. Ensure prices are numbers. The output must be valid JSON matching the schema.",
+          text: "Analyze this receipt and extract EVERY SINGLE item listed. Do not summarize or skip any items. Extract: 1. A full list of items with their individual names and exact prices. 2. The total tax amount. 3. Any service charges or fees. 4. The grand total at the bottom. The output must be valid JSON.",
         },
       ],
     },

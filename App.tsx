@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import CameraCapture from './components/CameraCapture';
 import PersonManager from './components/PersonManager';
 import AssignmentGrid from './components/AssignmentGrid';
-import Summary from './components/Summary';
+import Summary, { SummaryHandle } from './components/Summary';
 import { extractReceiptData } from './services/geminiService';
 import { ReceiptData, Person, ItemAssignment } from './types';
 
@@ -22,7 +22,10 @@ const App: React.FC = () => {
   const [people, setPeople] = useState<Person[]>([]);
   const [assignments, setAssignments] = useState<ItemAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const summaryRef = useRef<SummaryHandle>(null);
 
   const handleCapture = async (base64: string) => {
     setIsLoading(true);
@@ -38,6 +41,14 @@ const App: React.FC = () => {
       console.error(err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (summaryRef.current) {
+      setIsExporting(true);
+      await summaryRef.current.sharePDF();
+      setIsExporting(false);
     }
   };
 
@@ -75,7 +86,7 @@ const App: React.FC = () => {
         <div className="flex flex-col items-center justify-center py-20 gap-4 text-center px-6">
           <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
           <div className="space-y-1">
-            <p className="text-slate-800 font-black text-lg">Processing Bill</p>
+            <p className="text-slate-800 font-black text-lg">Processing Receipt</p>
             <p className="text-slate-500 text-sm">Gemini AI is reading your items...</p>
           </div>
         </div>
@@ -85,10 +96,28 @@ const App: React.FC = () => {
     switch (currentStep) {
       case Step.CAPTURE:
         return (
-          <div className="space-y-6 pb-12">
-            <CameraCapture onCapture={handleCapture} />
+          <div className="space-y-6 pb-12 relative">
+            <div className="absolute top-[-100px] left-[-16px] right-[-16px] h-[640px] overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-slate-50 z-10" />
+               <img 
+                 src="https://i.postimg.cc/Y94ZTFFc/Whats-App-Image-2026-02-09-at-8-15-30-PM.jpg" 
+                 alt="Cinematic dining experience" 
+                 className="w-full h-full object-cover object-center scale-105 animate-soft-zoom"
+                 onError={(e) => {
+                   e.currentTarget.src = "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=2074&auto=format&fit=crop";
+                 }}
+               />
+               <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-50 to-transparent z-20" />
+            </div>
+            
+            <div className="relative z-30 pt-[440px]">
+              <div className="transform transition-all duration-700 hover:scale-[1.01] max-w-md mx-auto">
+                <CameraCapture onCapture={handleCapture} />
+              </div>
+            </div>
+
             {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-center text-sm font-bold mx-2">
+              <div className="relative z-30 bg-red-50 border border-red-100 text-red-600 p-4 rounded-xl text-center text-sm font-bold mx-2 shadow-lg max-w-md mx-auto mt-4">
                 {error}
               </div>
             )}
@@ -179,36 +208,63 @@ const App: React.FC = () => {
 
       case Step.SUMMARY:
         return (
-          <div className="max-w-4xl mx-auto pb-12 px-1">
+          <div className="max-w-4xl mx-auto pb-24 px-1">
             {receiptData && (
               <Summary 
+                ref={summaryRef}
                 receiptData={receiptData}
                 people={people}
                 assignments={assignments}
               />
             )}
-            <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-3 px-4">
-              <button 
-                onClick={() => setCurrentStep(Step.ASSIGN)}
-                className="w-full sm:w-auto bg-white border-2 border-slate-100 text-slate-600 px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+            
+            <div className="mt-12 space-y-6 max-w-sm mx-auto px-4">
+              <button
+                onClick={handleShare}
+                disabled={isExporting}
+                className="w-full flex items-center justify-center gap-3 bg-indigo-600 text-white px-8 py-5 rounded-3xl font-black text-base shadow-2xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all disabled:opacity-50"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit Assignments
+                {isExporting ? (
+                  <>
+                    <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    <span>Share Split as PDF</span>
+                  </>
+                )}
               </button>
-              <button 
-                onClick={() => {
-                  setReceiptData(null);
-                  setPeople([]);
-                  setAssignments([]);
-                  setCapturedImage(null);
-                  setCurrentStep(Step.CAPTURE);
-                }}
-                className="w-full sm:w-auto bg-indigo-50 text-indigo-700 px-8 py-3.5 rounded-2xl font-black text-sm hover:bg-indigo-100 transition-colors"
-              >
-                New Receipt
-              </button>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => setCurrentStep(Step.ASSIGN)}
+                  className="bg-white border-2 border-slate-100 text-slate-600 py-4 rounded-2xl font-black text-xs hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </button>
+                <button 
+                  onClick={() => {
+                    setReceiptData(null);
+                    setPeople([]);
+                    setAssignments([]);
+                    setCapturedImage(null);
+                    setCurrentStep(Step.CAPTURE);
+                  }}
+                  className="bg-indigo-50 text-indigo-700 py-4 rounded-2xl font-black text-xs hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                  </svg>
+                  New
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -219,25 +275,71 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12">
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 py-3 sm:py-4 sticky top-0 z-40 px-safe">
+    <div className="min-h-screen bg-slate-50 pb-12 overflow-x-hidden">
+      <header className={`py-3 sm:py-4 sticky top-0 z-50 px-safe transition-all duration-500 border-b ${
+        currentStep === Step.CAPTURE 
+          ? 'bg-transparent border-transparent shadow-none' 
+          : 'bg-white/80 backdrop-blur-md border-slate-100 shadow-sm'
+      }`}>
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3">
-          <div className="bg-indigo-600 p-1.5 rounded-lg cursor-pointer active:scale-90 transition-transform" onClick={() => setCurrentStep(Step.CAPTURE)}>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          {/* Back button area */}
+          <div className="relative h-8 flex items-center">
+            {currentStep !== Step.CAPTURE && (
+              <div 
+                className="p-1.5 rounded-lg cursor-pointer active:scale-90 transition-all bg-indigo-600 opacity-100 scale-100"
+                onClick={() => {
+                  if (confirm('Start over and lose progress?')) {
+                    setCurrentStep(Step.CAPTURE);
+                    setReceiptData(null);
+                    setPeople([]);
+                    setAssignments([]);
+                  }
+                }}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            )}
           </div>
-          <h1 className="text-xl font-black text-slate-900 tracking-tight">BillSplit Pro</h1>
+
+          {/* Logo + App Name Container */}
+          <div className={`flex items-center gap-2 transition-all duration-500 ${
+            currentStep === Step.CAPTURE ? 'translate-y-0' : 'translate-y-0'
+          }`}>
+            <div className={`flex items-center justify-center rounded-lg transition-all duration-500 ${
+              currentStep === Step.CAPTURE ? 'w-8 h-8 sm:w-9 sm:h-9 bg-indigo-600 shadow-[0_4px_12px_rgba(79,70,229,0.5)]' : 'w-7 h-7 sm:w-8 sm:h-8 bg-indigo-600'
+            }`}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <h1 className={`text-xl font-black tracking-tight transition-all duration-500 ${
+              currentStep === Step.CAPTURE ? 'text-white drop-shadow-md' : 'text-slate-900'
+            }`}>
+              الحساب يجمع
+            </h1>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 pt-6">
+      <main className={`max-w-6xl mx-auto px-4 ${currentStep === Step.CAPTURE ? 'pt-0' : 'pt-6'}`}>
         {renderContent()}
       </main>
       
       <footer className="py-8 text-center text-slate-300 text-[10px] font-black uppercase tracking-widest">
-        BillSplit Pro &bull; {new Date().getFullYear()}
+        الحساب يجمع &bull; {new Date().getFullYear()}
       </footer>
+
+      <style>{`
+        @keyframes soft-zoom {
+          from { transform: scale(1); }
+          to { transform: scale(1.1); }
+        }
+        .animate-soft-zoom {
+          animation: soft-zoom 20s infinite alternate ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };

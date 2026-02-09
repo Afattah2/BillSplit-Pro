@@ -1,5 +1,5 @@
 {
-  "name": "BillSplit Pro",
+  "name": "الحساب يجمع",
   "description": "Snap a photo of your receipt and split the bill fairly among friends with AI-powered item extraction.",
   "requestFramePermissions": [
     "camera"

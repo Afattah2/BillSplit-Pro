@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>BillSplit Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
 <script type="importmap">
@@ -16,6 +16,14 @@
   }
 }
 </script>
+<style>
+  :root {
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  }
+  body {
+    padding-bottom: var(--safe-area-inset-bottom);
+  }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
     <div id="root"></div>

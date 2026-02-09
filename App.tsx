@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [showImagePreview, setShowImagePreview] = useState(false);
   const [people, setPeople] = useState<Person[]>([]);
+  const [placeName, setPlaceName] = useState<string>('');
   const [assignments, setAssignments] = useState<ItemAssignment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -175,6 +176,8 @@ const App: React.FC = () => {
           <div className="max-w-2xl mx-auto space-y-6 pb-24 px-1">
             <PersonManager 
               people={people} 
+              placeName={placeName}
+              setPlaceName={setPlaceName}
               onAdd={addPerson} 
               onRemove={removePerson} 
             />
@@ -203,7 +206,8 @@ const App: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div>
                   <h2 className="text-xl font-black text-slate-900">Assign Items</h2>
-                  <p className="text-slate-500 text-xs">Portions are limited to item quantity. Add +/- to adjust units.</p>
+                  {placeName && <p className="text-indigo-600 text-xs font-bold uppercase tracking-wider">{placeName}</p>}
+                  <p className="text-slate-500 text-xs mt-1">Portions are limited to item quantity. Add +/- to adjust units.</p>
                 </div>
                 {capturedImage && (
                   <button 
@@ -261,6 +265,7 @@ const App: React.FC = () => {
                 ref={summaryRef}
                 receiptData={receiptData}
                 people={people}
+                placeName={placeName}
                 assignments={assignments}
               />
             )}
@@ -302,6 +307,7 @@ const App: React.FC = () => {
                     setPeople([]);
                     setAssignments([]);
                     setCapturedImage(null);
+                    setPlaceName('');
                     setCurrentStep(Step.CAPTURE);
                   }}
                   className="bg-indigo-50 text-indigo-700 py-4 rounded-2xl font-black text-xs hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"

@@ -7,6 +7,7 @@ import html2canvas from 'html2canvas';
 interface SummaryProps {
   receiptData: ReceiptData;
   people: Person[];
+  placeName?: string;
   assignments: ItemAssignment[];
 }
 
@@ -14,7 +15,7 @@ export interface SummaryHandle {
   sharePDF: () => Promise<void>;
 }
 
-const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, assignments }, ref) => {
+const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, placeName, assignments }, ref) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
   
@@ -105,13 +106,13 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
       pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 3, canvas.height / 3);
       
       const pdfBlob = pdf.output('blob');
-      const fileName = `Split_Bill_${today}.pdf`;
+      const fileName = `Split_Bill_${placeName ? placeName.replace(/\s+/g, '_') + '_' : ''}${today}.pdf`;
 
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], fileName, { type: 'application/pdf' })] })) {
         await navigator.share({
           files: [new File([pdfBlob], fileName, { type: 'application/pdf' })],
           title: 'الحساب يجمع - Split Bill Details',
-          text: 'Here are the final split details for our bill.'
+          text: `Here are the final split details for ${placeName || 'our bill'}.`
         });
       } else {
         const url = URL.createObjectURL(pdfBlob);
@@ -151,6 +152,13 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 block py-1 leading-tight">
             Final Split
           </h3>
+          {placeName && (
+            <div className="py-2">
+              <span className="bg-indigo-50 text-indigo-700 px-6 py-1.5 rounded-full text-lg sm:text-xl font-black uppercase tracking-wide border border-indigo-100/50">
+                {placeName}
+              </span>
+            </div>
+          )}
           <p className="text-slate-400 text-sm font-black uppercase tracking-[0.2em] pt-2">{today}</p>
         </div>
       </div>

@@ -14,6 +14,14 @@ enum Step {
   SUMMARY
 }
 
+interface ConfirmConfig {
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+}
+
 const App: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<Step>(Step.CAPTURE);
   const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
@@ -26,6 +34,9 @@ const App: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Custom Confirmation Modal State
+  const [confirmConfig, setConfirmConfig] = useState<ConfirmConfig | null>(null);
+  
   const summaryRef = useRef<SummaryHandle>(null);
 
   const handleCapture = async (base64: string) => {
@@ -35,7 +46,6 @@ const App: React.FC = () => {
     try {
       const data = await extractReceiptData(base64);
       setReceiptData(data);
-      // Initialize assignments with empty portions
       setAssignments(data.items.map(item => ({ itemId: item.id, portions: {} })));
       setCurrentStep(Step.PEOPLE);
     } catch (err) {
@@ -81,7 +91,6 @@ const App: React.FC = () => {
         const currentCount = a.portions[personId] || 0;
         let newCount = currentCount + delta;
 
-        // Limit checking: cannot exceed item quantity
         if (newCount + otherPortionsTotal > maxQuantity) {
             newCount = maxQuantity - otherPortionsTotal;
         }
@@ -115,7 +124,6 @@ const App: React.FC = () => {
         if (isAssigned) {
           delete newPortions[personId];
         } else {
-          // Only add if there's room left in the item's total quantity
           if (currentTotal < maxQuantity) {
              newPortions[personId] = 1;
           }
@@ -125,6 +133,51 @@ const App: React.FC = () => {
       }
       return a;
     }));
+  };
+
+  const handleFinishSplit = () => {
+    if (!receiptData) {
+      setCurrentStep(Step.SUMMARY);
+      return;
+    }
+
+    const hasUnassigned = receiptData.items.some(item => {
+      const assignment = assignments.find(a => a.itemId === item.id);
+      const totalPortions = (Object.values(assignment?.portions || {}) as number[]).reduce((a, b) => a + b, 0);
+      return totalPortions < item.quantity;
+    });
+
+    if (hasUnassigned) {
+      setConfirmConfig({
+        title: "Unassigned Items",
+        message: "There are still unassigned items. Do you want to continue?",
+        confirmLabel: "Yes, Continue",
+        cancelLabel: "No, Go Back",
+        onConfirm: () => {
+          setCurrentStep(Step.SUMMARY);
+          setConfirmConfig(null);
+        }
+      });
+    } else {
+      setCurrentStep(Step.SUMMARY);
+    }
+  };
+
+  const handleRestart = () => {
+    setConfirmConfig({
+      title: "Start Over?",
+      message: "This will clear all items and progress. Are you sure?",
+      confirmLabel: "Restart",
+      cancelLabel: "Cancel",
+      onConfirm: () => {
+        setCurrentStep(Step.CAPTURE);
+        setReceiptData(null);
+        setPeople([]);
+        setAssignments([]);
+        setPlaceName('');
+        setConfirmConfig(null);
+      }
+    });
   };
 
   const renderContent = () => {
@@ -183,7 +236,7 @@ const App: React.FC = () => {
             />
             <div className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/90 backdrop-blur-xl border-t border-slate-100 flex justify-between items-center z-50">
               <button 
-                onClick={() => setCurrentStep(Step.CAPTURE)}
+                onClick={handleRestart}
                 className="text-slate-400 font-bold text-sm px-4"
               >
                 Back
@@ -248,7 +301,7 @@ const App: React.FC = () => {
                 Back
               </button>
               <button 
-                onClick={() => setCurrentStep(Step.SUMMARY)}
+                onClick={handleFinishSplit}
                 className="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition-all"
               >
                 Finish Split
@@ -339,14 +392,7 @@ const App: React.FC = () => {
             {currentStep !== Step.CAPTURE && (
               <div 
                 className="p-1.5 rounded-lg cursor-pointer active:scale-90 transition-all bg-indigo-600 opacity-100 scale-100"
-                onClick={() => {
-                  if (confirm('Start over and lose progress?')) {
-                    setCurrentStep(Step.CAPTURE);
-                    setReceiptData(null);
-                    setPeople([]);
-                    setAssignments([]);
-                  }
-                }}
+                onClick={handleRestart}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -375,6 +421,39 @@ const App: React.FC = () => {
       <main className={`max-w-6xl mx-auto px-4 ${currentStep === Step.CAPTURE ? 'pt-0' : 'pt-6'}`}>
         {renderContent()}
       </main>
+
+      {/* Custom Confirmation Modal */}
+      {confirmConfig && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div 
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" 
+            onClick={() => setConfirmConfig(null)}
+          />
+          <div className="relative bg-white w-full max-w-sm rounded-[2.5rem] p-8 sm:p-10 shadow-2xl shadow-black/20 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 text-center">
+            <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 mx-auto mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 mb-3">{confirmConfig.title}</h2>
+            <p className="text-slate-500 font-bold leading-relaxed mb-8">{confirmConfig.message}</p>
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={() => setConfirmConfig(null)}
+                className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black text-sm shadow-xl shadow-indigo-100 active:scale-95 transition-all"
+              >
+                {confirmConfig.cancelLabel || "Cancel"}
+              </button>
+              <button 
+                onClick={confirmConfig.onConfirm}
+                className="w-full bg-slate-50 text-slate-500 py-4 rounded-2xl font-black text-sm active:scale-95 transition-all"
+              >
+                {confirmConfig.confirmLabel || "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <footer className="py-8 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">
         <span className="text-black/40">الحساب يجمع</span> &bull; {new Date().getFullYear()}

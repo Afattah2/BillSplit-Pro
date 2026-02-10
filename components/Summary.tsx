@@ -37,7 +37,6 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
       if (assignment) {
         const personPortions = assignment.portions[person.id] || 0;
         if (personPortions > 0) {
-          // Fix: Explicitly cast Object.values to number[] to ensure totalPortions is a number
           const totalPortions = (Object.values(assignment.portions) as number[]).reduce((a, b) => a + b, 0);
           const share = (item.price / totalPortions) * personPortions;
           personalSubtotal += share;
@@ -61,14 +60,12 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
     };
   });
 
-  // Fix: Explicitly type the accumulator as number to prevent operator '+' errors on unknown types
   const totalAccounted = totals.reduce((sum: number, t) => sum + t.total, 0);
   const remainingToAssign = Math.max(0, receiptData.total - totalAccounted);
   const isFullyAssigned = remainingToAssign < 0.05;
 
   const unassignedItems = receiptData.items.filter(item => {
     const assignment = assignments.find(a => a.itemId === item.id);
-    // Fix: Cast Object.values to number[] to ensure totalPortions calculation is valid
     const totalPortions = (Object.values(assignment?.portions || {}) as number[]).reduce((a, b) => a + b, 0);
     return totalPortions === 0;
   });
@@ -79,10 +76,12 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
 
     try {
       const element = reportRef.current;
+      
+      // Ensure all fonts and images are fully loaded before capturing
       await document.fonts.ready;
-
+      
       const canvas = await html2canvas(element, {
-        scale: 3, 
+        scale: 2.5, // High resolution for quality print
         useCORS: true,
         backgroundColor: '#f8fafc',
         logging: false,
@@ -90,20 +89,22 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           const container = clonedDoc.querySelector('.summary-container') as HTMLElement;
           if (container) {
             container.style.fontFamily = "'Cairo', sans-serif";
-            container.style.direction = 'ltr';
             container.style.textRendering = 'optimizeLegibility';
           }
         }
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdfWidth = canvas.width / 2.5;
+      const pdfHeight = canvas.height / 2.5;
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
-        format: [canvas.width / 3, canvas.height / 3]
+        format: [pdfWidth, pdfHeight]
       });
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 3, canvas.height / 3);
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
       
       const pdfBlob = pdf.output('blob');
       const fileName = `Split_Bill_${placeName ? placeName.replace(/\s+/g, '_') + '_' : ''}${today}.pdf`;
@@ -135,7 +136,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
   }));
 
   return (
-    <div ref={reportRef} className="summary-container space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 overflow-visible" style={{ direction: 'ltr' }}>
+    <div ref={reportRef} className="summary-container space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 overflow-visible">
       {/* Report Header */}
       <div className="text-center space-y-3 px-4 overflow-visible pt-8">
         <div className="flex justify-center mb-6">
@@ -146,7 +147,8 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           </div>
         </div>
         <div className="space-y-1">
-          <h2 className="text-4xl sm:text-5xl font-black text-black tracking-tight block py-1 leading-tight arabic-shaping">
+          {/* Fixed Arabic Shaping: Added dir="rtl" and removed tracking-tight which can break ligatures in canvas rendering */}
+          <h2 className="text-4xl sm:text-5xl font-black text-black block py-1 leading-tight arabic-shaping" dir="rtl">
             الحساب يجمع
           </h2>
           <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 block py-1 leading-tight">
@@ -169,25 +171,27 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           <div key={person.id} className="bg-white p-7 sm:p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-50 flex flex-col transition-all active:scale-[0.99] overflow-visible min-h-fit">
             
             <div className="flex justify-between items-center mb-8 pb-8 border-b-2 border-slate-50 overflow-visible gap-4">
-              <h4 className="text-2xl sm:text-3xl font-black text-indigo-600 break-words leading-tight">
+              <h4 className="text-2xl sm:text-3xl font-black text-indigo-600 break-words leading-tight text-left flex-1">
                 {person.name}
               </h4>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums leading-tight shrink-0 font-mono">
-                EGP {total.toFixed(2)}
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums leading-tight shrink-0 font-mono text-right min-w-[140px]">
+                <span className="text-xs mr-2 font-sans text-slate-400 align-middle">EGP</span>
+                {total.toFixed(2)}
               </div>
             </div>
 
             <div className="flex-1 space-y-5 mb-10 overflow-visible">
               {items.length > 0 ? (
                 items.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-start overflow-visible border-b border-slate-50/50 last:border-0 pb-2 last:pb-0 gap-4">
-                    <span className="text-base sm:text-lg text-slate-500 font-bold break-words leading-relaxed">
+                  <div key={idx} className="flex items-center overflow-visible border-b border-slate-50/50 last:border-0 pb-2 last:pb-0 gap-4">
+                    <span className="flex-1 text-base sm:text-lg text-slate-500 font-bold break-words leading-relaxed text-left">
                       {item.name} 
                       {item.quantity > 1 && <span className="text-xs text-slate-400 ml-1 italic"> (total x{item.quantity})</span>}
                       {item.portions > 1 && <span className="text-xs text-indigo-400 bg-indigo-50 px-2 py-0.5 rounded-full align-middle ml-2">x{item.portions} shared</span>}
                     </span>
-                    <span className="text-base sm:text-lg font-mono tabular-nums font-black text-slate-800 shrink-0">
-                      EGP {item.share.toFixed(2)}
+                    <span className="w-44 text-right text-base sm:text-lg font-mono tabular-nums font-black text-slate-800 shrink-0">
+                      <span className="text-[10px] mr-2 font-sans text-slate-400 font-normal">EGP</span>
+                      {item.share.toFixed(2)}
                     </span>
                   </div>
                 ))
@@ -201,15 +205,15 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
             <div className="space-y-3 pt-8 border-t-2 border-slate-50 text-xs sm:text-sm text-indigo-400/80 uppercase tracking-[0.1em] font-black overflow-visible">
               <div className="flex justify-between items-center">
                 <span>Subtotal:</span>
-                <span className="font-mono tabular-nums text-slate-400 font-bold">EGP {subtotal.toFixed(2)}</span>
+                <span className="font-mono tabular-nums text-slate-400 font-bold text-right min-w-[120px]">EGP {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>+ Proportional Tax:</span>
-                <span className="font-mono tabular-nums font-black text-indigo-500/60">EGP {tax.toFixed(2)}</span>
+                <span className="font-mono tabular-nums font-black text-indigo-500/60 text-right min-w-[120px]">EGP {tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>+ Service Charge:</span>
-                <span className="font-mono tabular-nums font-black text-indigo-500/60">EGP {serviceCharge.toFixed(2)}</span>
+                <span className="font-mono tabular-nums font-black text-indigo-500/60 text-right min-w-[120px]">EGP {serviceCharge.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -219,16 +223,20 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           <div className="bg-amber-50/30 p-8 sm:p-10 rounded-[3rem] border-4 border-dashed border-amber-100 flex flex-col shadow-inner overflow-visible">
             <div className="flex justify-between items-center mb-6 pb-6 border-b-2 border-amber-100">
               <h4 className="text-2xl font-black text-amber-600 leading-tight">Remaining</h4>
-              <div className="text-2xl font-black text-amber-700 tabular-nums leading-tight font-mono">
-                EGP {remainingToAssign.toFixed(2)}
+              <div className="text-2xl font-black text-amber-700 tabular-nums leading-tight font-mono text-right min-w-[140px]">
+                <span className="text-xs mr-2 font-sans text-amber-500/50 align-middle">EGP</span>
+                {remainingToAssign.toFixed(2)}
               </div>
             </div>
             <div className="space-y-4 overflow-visible">
               <p className="text-xs font-black text-amber-600/70 uppercase tracking-[0.2em] mb-4">Unassigned items:</p>
               {unassignedItems.map(item => (
-                <div key={item.id} className="flex justify-between items-start gap-4 text-sm sm:text-base text-amber-800 font-bold overflow-visible">
-                  <span className="break-words leading-relaxed">{item.name} {item.quantity > 1 && <span className="text-xs opacity-60">(x{item.quantity})</span>}</span>
-                  <span className="font-mono shrink-0 font-black">EGP {item.price.toFixed(2)}</span>
+                <div key={item.id} className="flex items-center gap-4 text-sm sm:text-base text-amber-800 font-bold overflow-visible">
+                  <span className="flex-1 break-words leading-relaxed text-left">{item.name} {item.quantity > 1 && <span className="text-xs opacity-60">(x{item.quantity})</span>}</span>
+                  <span className="w-44 text-right font-mono shrink-0 font-black">
+                    <span className="text-[10px] mr-2 font-sans font-normal opacity-50">EGP</span>
+                    {item.price.toFixed(2)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -241,7 +249,8 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           {isFullyAssigned ? 'Split Successful' : 'Progress'}
         </div>
         <div className={`text-6xl sm:text-8xl font-black tabular-nums tracking-tighter leading-none mb-10 py-4 font-mono ${!isFullyAssigned && 'text-indigo-600'}`}>
-          EGP {totalAccounted.toFixed(2)}
+          <span className="text-2xl mr-4 font-sans font-normal opacity-40">EGP</span>
+          {totalAccounted.toFixed(2)}
         </div>
         
         <div className="max-w-md mx-auto space-y-10 overflow-visible">
@@ -255,7 +264,10 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
           <div className="flex flex-col gap-4 overflow-visible pb-10">
              <div className="flex items-center justify-center gap-4 text-lg font-black">
               <span className={`${isFullyAssigned ? 'text-slate-400' : 'text-slate-500'}`}>Grand Total:</span>
-              <span className={`font-mono text-2xl ${isFullyAssigned ? 'text-white' : 'text-black'}`}>EGP {receiptData.total.toFixed(2)}</span>
+              <span className={`font-mono text-2xl ${isFullyAssigned ? 'text-white' : 'text-black'}`}>
+                <span className="text-xs mr-1 opacity-50 font-sans">EGP</span>
+                {receiptData.total.toFixed(2)}
+              </span>
             </div>
 
             {!isFullyAssigned && (

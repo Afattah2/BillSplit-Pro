@@ -40,18 +40,20 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 w-full max-w-md mx-auto p-6 sm:p-10 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl border border-slate-100">
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-indigo-50 rounded-2xl mb-1 sm:mb-2">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 sm:h-8 sm:w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 14l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+    <div className="flex flex-col items-center gap-2 w-full max-w-md mx-auto pt-0 px-6 pb-6 sm:pt-0 sm:px-10 sm:pb-10 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl border border-slate-100 overflow-hidden">
+      <div className="text-center space-y-0 w-full flex flex-col items-center">
+        <div className="inline-flex items-center justify-center w-full max-w-[400px] aspect-square bg-transparent -mt-8 -mb-12">
+          <img 
+            src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
+            alt="App Logo" 
+            className="w-full h-full object-contain"
+          />
         </div>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Scan Receipt</h2>
         <p className="text-slate-500 text-xs sm:text-sm font-medium">Capture your bill to start the split</p>
       </div>
       
-      <div className="w-full space-y-3 sm:space-y-4">
+      <div className="w-full space-y-3 sm:space-y-4 mt-4">
         <input 
           ref={cameraInputRef}
           type="file" 

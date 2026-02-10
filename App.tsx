@@ -66,7 +66,7 @@ const App: React.FC = () => {
 
   const addPerson = (name: string) => {
     const newPerson = { id: `person-${Date.now()}`, name };
-    setPeople([...people, newPerson]);
+    setPeople([... people, newPerson]);
   };
 
   const removePerson = (id: string) => {
@@ -380,16 +380,18 @@ const App: React.FC = () => {
     }
   };
 
+  const isHomeView = currentStep === Step.CAPTURE && !isLoading;
+
   return (
     <div className="min-h-screen bg-slate-50 pb-12 overflow-x-hidden">
       <header className={`py-3 sm:py-4 sticky top-0 z-50 px-safe transition-all duration-500 border-b ${
-        currentStep === Step.CAPTURE 
+        isHomeView 
           ? 'bg-transparent border-transparent shadow-none' 
           : 'bg-white/80 backdrop-blur-md border-slate-100 shadow-sm'
       }`}>
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3">
           <div className="relative h-8 flex items-center">
-            {currentStep !== Step.CAPTURE && (
+            {!isHomeView && (
               <div 
                 className="p-1.5 rounded-lg cursor-pointer active:scale-90 transition-all bg-indigo-600 opacity-100 scale-100"
                 onClick={handleRestart}
@@ -402,15 +404,17 @@ const App: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`flex items-center justify-center rounded-lg transition-all duration-500 ${
-              currentStep === Step.CAPTURE ? 'w-8 h-8 sm:w-9 sm:h-9 bg-indigo-600 shadow-[0_4px_12px_rgba(79,70,229,0.5)]' : 'w-7 h-7 sm:w-8 sm:h-8 bg-indigo-600'
+            <div className={`flex items-center justify-center transition-all duration-500 ${
+              isHomeView ? 'w-10 h-10 sm:w-12 sm:h-12' : 'w-8 h-8 sm:w-10 sm:h-10'
             }`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
+              <img 
+                src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
+                alt="Logo" 
+                className="w-full h-full object-contain drop-shadow-md"
+              />
             </div>
             <h1 className={`text-xl font-black tracking-tight transition-all duration-500 ${
-              currentStep === Step.CAPTURE ? 'text-white drop-shadow-md' : 'text-black'
+              isHomeView ? 'text-white drop-shadow-md' : 'text-black'
             }`}>
               الحساب يجمع
             </h1>
@@ -418,7 +422,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className={`max-w-6xl mx-auto px-4 ${currentStep === Step.CAPTURE ? 'pt-0' : 'pt-6'}`}>
+      <main className={`max-w-6xl mx-auto px-4 ${isHomeView ? 'pt-0' : 'pt-6'}`}>
         {renderContent()}
       </main>
 

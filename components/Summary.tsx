@@ -136,37 +136,38 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
   }));
 
   return (
-    <div ref={reportRef} className="summary-container space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 overflow-visible">
+    <div ref={reportRef} className="summary-container space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 overflow-visible">
       {/* Report Header */}
-      <div className="text-center space-y-3 px-4 overflow-visible pt-8">
-        <div className="flex justify-center mb-6">
-          <div className="bg-indigo-600 w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center rounded-[1.25rem] shadow-xl shadow-indigo-100 ring-8 ring-white">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 sm:h-10 sm:w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
+      <div className="text-center space-y-0 px-4 overflow-visible pt-0 flex flex-col items-center">
+        <div className="flex justify-center w-full max-w-[480px] -mt-10 -mb-20">
+          <div className="w-full aspect-square flex items-center justify-center p-2">
+            <img 
+              src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
+              alt="App Logo" 
+              className="w-full h-full object-contain drop-shadow-xl"
+            />
           </div>
         </div>
-        <div className="space-y-1">
-          {/* Fixed Arabic Shaping: Added dir="rtl" and removed tracking-tight which can break ligatures in canvas rendering */}
-          <h2 className="text-4xl sm:text-5xl font-black text-black block py-1 leading-tight arabic-shaping" dir="rtl">
-            الحساب يجمع
-          </h2>
-          <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 block py-1 leading-tight">
+        
+        <div className="flex flex-col items-center gap-0">
+          <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 leading-tight">
             Final Split
           </h3>
+          
           {placeName && (
-            <div className="py-2">
-              <span className="bg-indigo-50 text-indigo-700 px-6 py-1.5 rounded-full text-lg sm:text-xl font-black uppercase tracking-wide border border-indigo-100/50">
+            <div className="mt-2 mb-1 flex justify-center">
+              <span className="bg-indigo-50 text-indigo-700 px-6 py-1.5 rounded-full text-lg sm:text-xl font-black uppercase tracking-wide border border-indigo-100 shadow-sm inline-block">
                 {placeName}
               </span>
             </div>
           )}
-          <p className="text-slate-400 text-sm font-black uppercase tracking-[0.2em] pt-2">{today}</p>
+          
+          <p className="text-slate-400 text-sm font-black uppercase tracking-[0.2em] mt-1">{today}</p>
         </div>
       </div>
       
       {/* Individual Breakdown Cards */}
-      <div className="space-y-8 px-1 overflow-visible">
+      <div className="space-y-8 px-1 overflow-visible mt-2">
         {totals.map(({ person, subtotal, tax, serviceCharge, total, items }) => (
           <div key={person.id} className="bg-white p-7 sm:p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-50 flex flex-col transition-all active:scale-[0.99] overflow-visible min-h-fit">
             
@@ -180,17 +181,27 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
               </div>
             </div>
 
-            <div className="flex-1 space-y-5 mb-10 overflow-visible">
+            <div className="flex-1 space-y-6 mb-10 overflow-visible">
               {items.length > 0 ? (
                 items.map((item, idx) => (
-                  <div key={idx} className="flex items-center overflow-visible border-b border-slate-50/50 last:border-0 pb-2 last:pb-0 gap-4">
-                    <span className="flex-1 text-base sm:text-lg text-slate-500 font-bold break-words leading-relaxed text-left">
-                      {item.name} 
-                      {item.quantity > 1 && <span className="text-xs text-slate-400 ml-1 italic"> (total x{item.quantity})</span>}
-                      {item.portions > 1 && <span className="text-xs text-indigo-400 bg-indigo-50 px-2 py-0.5 rounded-full align-middle ml-2">x{item.portions} shared</span>}
-                    </span>
-                    <span className="w-44 text-right text-base sm:text-lg font-mono tabular-nums font-black text-slate-800 shrink-0">
-                      <span className="text-[10px] mr-2 font-sans text-slate-400 font-normal">EGP</span>
+                  <div key={idx} className="flex items-start overflow-visible border-b border-slate-50/50 last:border-0 pb-3 last:pb-0 gap-4">
+                    {/* Item Name and Tags using flex-wrap to avoid overlaps */}
+                    <div className="flex-1 flex flex-wrap items-center gap-2 text-base sm:text-lg text-slate-500 font-bold leading-relaxed text-left">
+                      <span className="text-slate-700">{item.name}</span>
+                      {item.quantity > 1 && (
+                        <span className="text-xs text-slate-400 italic font-normal">
+                          (total x{item.quantity})
+                        </span>
+                      )}
+                      {item.portions > 1 && (
+                        <span className="text-[10px] text-indigo-500 bg-indigo-50 px-2.5 py-1 rounded-full whitespace-nowrap border border-indigo-100 uppercase tracking-tighter">
+                          x{item.portions} shared
+                        </span>
+                      )}
+                    </div>
+                    
+                    <span className="w-32 text-right text-base sm:text-lg font-mono tabular-nums font-black text-slate-800 shrink-0 mt-0.5">
+                      <span className="text-[10px] mr-1.5 font-sans text-slate-400 font-normal">EGP</span>
                       {item.share.toFixed(2)}
                     </span>
                   </div>

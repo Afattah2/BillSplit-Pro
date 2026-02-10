@@ -40,9 +40,9 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full max-w-md mx-auto pt-0 px-6 pb-6 sm:pt-0 sm:px-10 sm:pb-10 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl border border-slate-100 overflow-hidden">
+    <div className="flex flex-col items-center gap-2 w-full max-w-md mx-auto pt-6 px-6 pb-6 sm:pt-8 sm:px-10 sm:pb-10 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl border border-slate-100 overflow-hidden">
       <div className="text-center space-y-0 w-full flex flex-col items-center">
-        <div className="inline-flex items-center justify-center w-full max-w-[400px] aspect-square bg-transparent -mt-8 -mb-12">
+        <div className="inline-flex items-center justify-center w-full max-w-[600px] aspect-square bg-transparent -mt-6 -mb-20">
           <img 
             src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
             alt="App Logo" 
@@ -53,7 +53,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
         <p className="text-slate-500 text-xs sm:text-sm font-medium">Capture your bill to start the split</p>
       </div>
       
-      <div className="w-full space-y-3 sm:space-y-4 mt-4">
+      <div className="w-full space-y-3 sm:space-y-4 mt-8">
         <input 
           ref={cameraInputRef}
           type="file" 

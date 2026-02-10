@@ -197,7 +197,7 @@ const App: React.FC = () => {
       case Step.CAPTURE:
         return (
           <div className="space-y-6 pb-12 relative">
-            <div className="absolute top-[-100px] left-[-16px] right-[-16px] h-[640px] overflow-hidden">
+            <div className="absolute top-0 left-[-16px] right-[-16px] h-[580px] overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-slate-50 z-10" />
                <img 
                  src="https://i.postimg.cc/Y94ZTFFc/Whats-App-Image-2026-02-09-at-8-15-30-PM.jpg" 
@@ -210,7 +210,7 @@ const App: React.FC = () => {
                <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-50 to-transparent z-20" />
             </div>
             
-            <div className="relative z-30 pt-[440px]">
+            <div className="relative z-30 pt-[460px]">
               <div className="transform transition-all duration-700 hover:scale-[1.01] max-w-md mx-auto">
                 <CameraCapture onCapture={handleCapture} />
               </div>
@@ -384,16 +384,12 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-12 overflow-x-hidden">
-      <header className={`py-3 sm:py-4 sticky top-0 z-50 px-safe transition-all duration-500 border-b ${
-        isHomeView 
-          ? 'bg-transparent border-transparent shadow-none' 
-          : 'bg-white/80 backdrop-blur-md border-slate-100 shadow-sm'
-      }`}>
+      <header className={`py-1.5 sm:py-2 sticky top-0 z-50 px-safe transition-all duration-500 border-b bg-white border-slate-100 shadow-sm`}>
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3">
           <div className="relative h-8 flex items-center">
             {!isHomeView && (
               <div 
-                className="p-1.5 rounded-lg cursor-pointer active:scale-90 transition-all bg-indigo-600 opacity-100 scale-100"
+                className="p-1.5 rounded-lg cursor-pointer active:scale-90 transition-all bg-indigo-600"
                 onClick={handleRestart}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -405,7 +401,7 @@ const App: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <div className={`flex items-center justify-center transition-all duration-500 ${
-              isHomeView ? 'w-10 h-10 sm:w-12 sm:h-12' : 'w-8 h-8 sm:w-10 sm:h-10'
+              isHomeView ? 'w-24 h-24 sm:w-32 sm:h-32' : 'w-24 h-24 sm:w-28 sm:h-28'
             }`}>
               <img 
                 src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
@@ -413,9 +409,7 @@ const App: React.FC = () => {
                 className="w-full h-full object-contain drop-shadow-md"
               />
             </div>
-            <h1 className={`text-xl font-black tracking-tight transition-all duration-500 ${
-              isHomeView ? 'text-white drop-shadow-md' : 'text-black'
-            }`}>
+            <h1 className={`text-xl font-black tracking-tight text-black`}>
               الحساب يجمع
             </h1>
           </div>

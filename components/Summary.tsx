@@ -139,7 +139,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
     <div ref={reportRef} className="summary-container space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 overflow-visible">
       {/* Report Header */}
       <div className="text-center space-y-0 px-4 overflow-visible pt-0 flex flex-col items-center">
-        <div className="flex justify-center w-full max-w-[480px] -mt-10 -mb-20">
+        <div className="flex justify-center w-full max-w-[800px] -mt-16 -mb-28">
           <div className="w-full aspect-square flex items-center justify-center p-2">
             <img 
               src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 

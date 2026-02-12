@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from 'react';
 
 interface CameraCaptureProps {
@@ -86,7 +85,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
         
         <div className="relative py-2 sm:py-4">
           <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-100" /></div>
-          <div className="relative flex justify-center text-[10px] uppercase"><span className="bg-white px-4 text-slate-300 font-black tracking-[0.2em]">or</span></div>
+          <div className="relative flex justify-center text-[10px] uppercase"><span className="bg-white px-4 text-black font-black tracking-[0.2em]">or</span></div>
         </div>
 
         <button 

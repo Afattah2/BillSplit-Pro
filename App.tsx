@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import CameraCapture from './components/CameraCapture';
 import PersonManager from './components/PersonManager';
@@ -45,7 +46,7 @@ const App: React.FC = () => {
     try {
       const data = await extractReceiptData(base64);
       setReceiptData(data);
-      setAssignments(data.items.map(item => ({ itemId: item.id, portions: {} })));
+      setAssignments(data.items.map(item => ({ itemId: item.id, portions: {}, isFreeSplit: false })));
       setCurrentStep(Step.PEOPLE);
     } catch (err) {
       setError("Failed to process receipt. Please try another photo.");
@@ -77,7 +78,50 @@ const App: React.FC = () => {
     }));
   };
 
+  const toggleFreeSplit = (itemId: string) => {
+    setAssignments(prev => prev.map(a => {
+      if (a.itemId === itemId) {
+        const isNowFree = !a.isFreeSplit;
+        const item = receiptData?.items.find(i => i.id === itemId);
+        const maxQty = item?.quantity || 1;
+
+        let newPortions = { ...a.portions };
+        
+        if (!isNowFree) {
+          // If switching back to portion split, we must ensure we don't exceed physical quantity
+          // Explicitly cast Object.entries to fix "unknown" type error on qty variable at line 98
+          const portions = Object.entries(newPortions) as [string, number][];
+          let currentSum = 0;
+          const cappedPortions: Record<string, number> = {};
+          
+          for (const [pid, qty] of portions) {
+            if (currentSum < maxQty) {
+              const available = maxQty - currentSum;
+              const actual = Math.min(qty, available);
+              if (actual > 0) {
+                cappedPortions[pid] = actual;
+                currentSum += actual;
+              }
+            }
+          }
+          newPortions = cappedPortions;
+        } else {
+          // If switching to free split, all existing assignments become 1 share
+          Object.keys(newPortions).forEach(pid => {
+            newPortions[pid] = 1;
+          });
+        }
+
+        return { ...a, isFreeSplit: isNowFree, portions: newPortions };
+      }
+      return a;
+    }));
+  };
+
   const updatePortion = (itemId: string, personId: string, delta: number) => {
+    const assignment = assignments.find(a => a.itemId === itemId);
+    if (assignment?.isFreeSplit) return; // Portions ignored in free split
+
     const item = receiptData?.items.find(i => i.id === itemId);
     const maxQuantity = item?.quantity || 1;
 
@@ -111,22 +155,26 @@ const App: React.FC = () => {
   };
 
   const toggleAssignment = (itemId: string, personId: string) => {
+    const assignment = assignments.find(a => a.itemId === itemId);
     const item = receiptData?.items.find(i => i.id === itemId);
     const maxQuantity = item?.quantity || 1;
 
     setAssignments(prev => prev.map(a => {
       if (a.itemId === itemId) {
         const isAssigned = !!a.portions[personId];
-        const currentTotal = (Object.values(a.portions) as number[]).reduce((a, b) => a + b, 0);
-        
         const newPortions = { ...a.portions };
         
         if (isAssigned) {
           delete newPortions[personId];
         } else {
-          // Only add if we haven't reached the physical limit
-          if (currentTotal < maxQuantity) {
-             newPortions[personId] = 1;
+          if (a.isFreeSplit) {
+            // Free split ignores physical quantity limit
+            newPortions[personId] = 1;
+          } else {
+            const currentTotal = (Object.values(a.portions) as number[]).reduce((a, b) => a + b, 0);
+            if (currentTotal < maxQuantity) {
+               newPortions[personId] = 1;
+            }
           }
         }
         
@@ -145,6 +193,10 @@ const App: React.FC = () => {
     const hasUnassigned = receiptData.items.some(item => {
       const assignment = assignments.find(a => a.itemId === item.id);
       const totalPortions = (Object.values(assignment?.portions || {}) as number[]).reduce((a, b) => a + b, 0);
+      
+      if (assignment?.isFreeSplit) {
+        return totalPortions === 0;
+      }
       return totalPortions < item.quantity;
     });
 
@@ -250,7 +302,7 @@ const App: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
                 <div>
                   <h2 className="text-xl font-black text-slate-900">Assign Items</h2>
-                  <p className="text-slate-500 text-xs mt-1">Assign portions of items to people. Limited to item quantity.</p>
+                  <p className="text-slate-500 text-xs mt-1">Assign portions or use "Free Split" to share equally.</p>
                 </div>
                 {capturedImage && (
                   <button onClick={() => setShowImagePreview(!showImagePreview)} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl font-bold text-xs">
@@ -270,6 +322,7 @@ const App: React.FC = () => {
                   assignments={assignments}
                   onToggleAssignment={toggleAssignment}
                   onUpdatePortion={updatePortion}
+                  onToggleFreeSplit={toggleFreeSplit}
                   highlightUnassigned={showValidationErrors}
                 />
               )}

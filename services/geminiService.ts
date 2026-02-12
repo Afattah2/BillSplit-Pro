@@ -3,7 +3,8 @@ import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import { ReceiptData } from "../types";
 
 export const extractReceiptData = async (base64Image: string): Promise<ReceiptData> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  // Use named parameter apiKey and directly access process.env.API_KEY as per guidelines
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',

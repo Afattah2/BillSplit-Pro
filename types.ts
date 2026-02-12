@@ -1,4 +1,3 @@
-
 export interface ReceiptItem {
   id: string;
   name: string;
@@ -22,4 +21,5 @@ export interface ItemAssignment {
   itemId: string;
   // Map of personId to number of portions/units they consumed
   portions: Record<string, number>;
+  isFreeSplit?: boolean;
 }

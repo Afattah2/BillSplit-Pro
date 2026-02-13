@@ -39,17 +39,19 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full max-w-md mx-auto pt-6 px-6 pb-6 sm:pt-8 sm:px-10 sm:pb-10 bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-xl sm:shadow-2xl border border-slate-100 overflow-hidden">
-      <div className="text-center space-y-0 w-full flex flex-col items-center">
-        <div className="inline-flex items-center justify-center w-full max-w-[600px] aspect-square bg-transparent -mt-6 -mb-20">
+    <div className="flex flex-col items-center gap-2 w-full max-w-md mx-auto pt-6 px-6 pb-6 sm:pt-8 sm:px-10 sm:pb-10 bg-white rounded-[2rem] shadow-xl sm:shadow-2xl border border-slate-100 overflow-hidden">
+      <div className="w-full flex flex-col items-center text-center">
+        <div className="w-full max-w-[600px] flex-shrink-0 mt-6">
           <img 
             src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
             alt="App Logo" 
             className="w-full h-full object-contain"
           />
         </div>
-        <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Scan Receipt</h2>
-        <p className="text-slate-500 text-xs sm:text-sm font-medium">Capture your bill to start the split</p>
+        <div className="flex flex-col items-center gap-1">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Scan Receipt</h2>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium">Capture your bill to start the split</p>
+        </div>
       </div>
       
       <div className="w-full space-y-3 sm:space-y-4 mt-8">
@@ -71,7 +73,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
 
         <button 
           onClick={triggerCamera}
-          className="group relative flex flex-col items-center justify-center w-full py-8 sm:py-10 bg-indigo-600 text-white rounded-[1.5rem] sm:rounded-3xl font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.97] transition-all overflow-hidden"
+          className="group relative flex flex-col items-center justify-center w-full py-8 sm:py-10 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.97] transition-all overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-tr from-indigo-800/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="bg-white/10 p-4 sm:p-5 rounded-2xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform backdrop-blur-sm">
@@ -100,7 +102,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
       </div>
       
       {error && (
-        <div className="bg-red-50 text-red-600 text-xs sm:text-sm p-4 rounded-xl w-full text-center font-bold border border-red-100 animate-pulse">
+        <div className="bg-red-50 text-red-600 text-xs sm:text-sm p-4 rounded-2xl w-full text-center font-bold border border-red-100 animate-pulse">
           {error}
         </div>
       )}

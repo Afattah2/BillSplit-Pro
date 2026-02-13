@@ -136,40 +136,31 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
   }));
 
   return (
-    <div ref={reportRef} className="summary-container space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10 overflow-visible">
-      {/* Report Header */}
-      <div className="text-center space-y-0 px-4 overflow-visible pt-0 flex flex-col items-center">
-        <div className="flex justify-center w-full max-w-[800px] -mt-16 -mb-28">
-          <div className="w-full aspect-square flex items-center justify-center p-2">
-            <img 
-              src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
-              alt="App Logo" 
-              className="w-full h-full object-contain drop-shadow-xl"
-            />
-          </div>
+    <div ref={reportRef} className="summary-container space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-visible">
+      {/* Report Header - same styling as Scan Receipt (CameraCapture) */}
+      <div className="w-full flex flex-col items-center text-center gap-3 px-4 overflow-visible">
+        <div className="w-full max-w-[600px] flex-shrink-0 mt-6">
+          <img 
+            src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
+            alt="App Logo" 
+            className="w-full h-full object-contain"
+          />
         </div>
-        
-        <div className="flex flex-col items-center gap-0">
-          <h3 className="text-2xl sm:text-3xl font-bold text-slate-700 leading-tight">
+        <div className="flex flex-col items-center gap-1">
+          <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Final Split
           </h3>
-          
           {placeName && (
-            <div className="mt-2 mb-1 flex justify-center">
-              <span className="bg-indigo-50 text-indigo-700 px-6 py-1.5 rounded-full text-lg sm:text-xl font-black uppercase tracking-wide border border-indigo-100 shadow-sm inline-block">
-                {placeName}
-              </span>
-            </div>
+            <p className="text-slate-500 text-xs sm:text-sm font-medium">{placeName}</p>
           )}
-          
-          <p className="text-slate-400 text-sm font-black uppercase tracking-[0.2em] mt-1">{today}</p>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium">{today}</p>
         </div>
       </div>
       
       {/* Individual Breakdown Cards */}
-      <div className="space-y-8 px-1 overflow-visible mt-2">
+      <div className="space-y-8 overflow-visible mt-2">
         {totals.map(({ person, subtotal, tax, serviceCharge, total, items }) => (
-          <div key={person.id} className="bg-white p-7 sm:p-10 rounded-[3rem] shadow-2xl shadow-slate-200/50 border border-slate-50 flex flex-col transition-all active:scale-[0.99] overflow-visible min-h-fit">
+          <div key={person.id} className="bg-white p-7 sm:p-10 rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-50 flex flex-col transition-all active:scale-[0.99] overflow-visible min-h-fit">
             
             <div className="flex justify-between items-center mb-8 pb-8 border-b-2 border-slate-50 overflow-visible gap-4">
               <h4 className="text-2xl sm:text-3xl font-black text-indigo-600 break-words leading-tight text-left flex-1">
@@ -231,7 +222,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
         ))}
 
         {!isFullyAssigned && (
-          <div className="bg-amber-50/30 p-8 sm:p-10 rounded-[3rem] border-4 border-dashed border-amber-100 flex flex-col shadow-inner overflow-visible">
+          <div className="bg-amber-50/30 p-8 sm:p-10 rounded-[2rem] border-4 border-dashed border-amber-100 flex flex-col shadow-inner overflow-visible">
             <div className="flex justify-between items-center mb-6 pb-6 border-b-2 border-amber-100">
               <h4 className="text-2xl font-black text-amber-600 leading-tight">Remaining</h4>
               <div className="text-2xl font-black text-amber-700 tabular-nums leading-tight font-mono text-right min-w-[140px]">
@@ -255,34 +246,34 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
         )}
       </div>
 
-      <div className={`p-10 sm:p-16 rounded-[4rem] mt-16 text-center shadow-3xl transition-all duration-1000 overflow-visible ${isFullyAssigned ? 'bg-[#0f172a] text-white' : 'bg-white border-4 border-slate-100 text-black'}`}>
-        <div className={`uppercase text-[12px] font-black tracking-[0.4em] mb-6 ${isFullyAssigned ? 'text-indigo-400' : 'text-slate-400'}`}>
+      <div className={`w-full min-w-0 p-4 sm:p-6 md:p-10 lg:p-16 rounded-[2rem] mt-8 sm:mt-12 md:mt-16 text-center shadow-3xl transition-all duration-1000 overflow-visible box-border ${isFullyAssigned ? 'bg-[#0f172a] text-white' : 'bg-white border-4 border-slate-100 text-black'}`}>
+        <div className={`uppercase text-[10px] sm:text-[12px] font-black tracking-[0.2em] sm:tracking-[0.4em] mb-4 sm:mb-6 ${isFullyAssigned ? 'text-indigo-400' : 'text-slate-400'}`}>
           {isFullyAssigned ? 'Split Successful' : 'Progress'}
         </div>
-        <div className={`text-6xl sm:text-8xl font-black tabular-nums tracking-tighter leading-none mb-10 py-4 font-mono ${!isFullyAssigned && 'text-indigo-600'}`}>
-          <span className="text-2xl mr-4 font-sans font-normal opacity-40">EGP</span>
-          {totalAccounted.toFixed(2)}
+        <div className={`text-4xl min-[480px]:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tabular-nums tracking-tighter leading-none mb-6 sm:mb-10 py-2 sm:py-4 font-mono break-all ${!isFullyAssigned && 'text-indigo-600'}`}>
+          <span className="text-lg sm:text-xl md:text-2xl mr-2 sm:mr-4 font-sans font-normal opacity-40">EGP</span>
+          <span className="inline-block min-w-0">{totalAccounted.toFixed(2)}</span>
         </div>
         
-        <div className="max-w-md mx-auto space-y-10 overflow-visible">
-          <div className="w-full bg-slate-400/10 h-4 rounded-full overflow-hidden p-1 border border-white/5">
+        <div className="w-full max-w-md mx-auto px-1 space-y-6 sm:space-y-8 md:space-y-10 overflow-visible">
+          <div className="w-full min-w-0 bg-slate-400/10 h-3 sm:h-4 rounded-full overflow-hidden p-0.5 sm:p-1 border border-white/5">
             <div 
               className={`h-full rounded-full transition-all duration-[2000ms] ease-out shadow-lg ${isFullyAssigned ? 'bg-indigo-400' : 'bg-indigo-600'}`}
               style={{ width: `${Math.min(100, (totalAccounted / receiptData.total) * 100)}%` }}
             />
           </div>
           
-          <div className="flex flex-col gap-4 overflow-visible pb-10">
-             <div className="flex items-center justify-center gap-4 text-lg font-black">
+          <div className="flex flex-col gap-3 sm:gap-4 overflow-visible pb-6 sm:pb-10">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-base sm:text-lg font-black">
               <span className={`${isFullyAssigned ? 'text-slate-400' : 'text-slate-500'}`}>Grand Total:</span>
-              <span className={`font-mono text-2xl ${isFullyAssigned ? 'text-white' : 'text-black'}`}>
+              <span className={`font-mono text-xl sm:text-2xl tabular-nums ${isFullyAssigned ? 'text-white' : 'text-black'}`}>
                 <span className="text-xs mr-1 opacity-50 font-sans">EGP</span>
                 {receiptData.total.toFixed(2)}
               </span>
             </div>
 
             {!isFullyAssigned && (
-              <div className="inline-flex items-center justify-center gap-3 px-8 py-3 bg-amber-100 text-amber-700 rounded-3xl text-xs font-black uppercase tracking-[0.1em] animate-pulse border-2 border-amber-200 mt-4 self-center shadow-xl shadow-amber-900/5">
+              <div className="inline-flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-2.5 sm:py-3 bg-amber-100 text-amber-700 rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-[0.1em] animate-pulse border-2 border-amber-200 mt-2 sm:mt-4 self-center shadow-xl shadow-amber-900/5">
                 Remaining: EGP {remainingToAssign.toFixed(2)}
               </div>
             )}

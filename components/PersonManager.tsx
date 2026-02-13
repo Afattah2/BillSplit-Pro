@@ -51,17 +51,17 @@ const PersonManager: React.FC<PersonManagerProps> = ({ people, placeName, setPla
           Who's splitting?
         </h3>
         
-        <form onSubmit={handleSubmit} className="flex gap-3 mb-6">
+        <form onSubmit={handleSubmit} className="grid grid-cols-[80fr_20fr] gap-3 mb-6">
           <input 
             type="text" 
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Add person name..."
-            className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-900 placeholder:text-slate-300"
+            className="min-w-0 w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-bold text-slate-900 placeholder:text-slate-300"
           />
           <button 
             type="submit"
-            className="px-8 py-4 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-100"
+            className="px-4 py-4 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 active:scale-95 transition-all shadow-lg shadow-indigo-100"
           >
             Add
           </button>

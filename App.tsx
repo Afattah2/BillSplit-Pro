@@ -4,6 +4,7 @@ import CameraCapture from './components/CameraCapture';
 import PersonManager from './components/PersonManager';
 import AssignmentGrid from './components/AssignmentGrid';
 import Summary, { SummaryHandle } from './components/Summary';
+import GoogleAdsBanner from './components/GoogleAdsBanner';
 import { extractReceiptData } from './services/geminiService';
 import { ReceiptData, Person, ItemAssignment } from './types';
 
@@ -254,7 +255,7 @@ const App: React.FC = () => {
     switch (currentStep) {
       case Step.CAPTURE:
         return (
-          <div className="space-y-6 pb-12 relative">
+          <div className="flex flex-col gap-6 relative">
             <div className="absolute top-0 left-[-16px] right-[-16px] h-[580px] overflow-hidden">
                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-slate-50 z-10" />
                <img 
@@ -274,7 +275,7 @@ const App: React.FC = () => {
 
       case Step.PEOPLE:
         return (
-          <div className="max-w-2xl mx-auto space-y-6 pb-24 px-1">
+          <div className="max-w-2xl mx-auto flex flex-col gap-6 px-1">
             <PersonManager 
               people={people} 
               placeName={placeName}
@@ -282,7 +283,7 @@ const App: React.FC = () => {
               onAdd={addPerson} 
               onRemove={removePerson} 
             />
-            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/90 backdrop-blur-xl border-t border-slate-100 flex justify-between items-center z-50">
+            <div className="fixed left-0 right-0 bottom-[72px] sm:bottom-[112px] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/90 backdrop-blur-xl border-t border-slate-100 flex justify-between items-center z-50">
               <button onClick={handleRestart} className="text-slate-400 font-bold text-sm px-4">Restart</button>
               <button 
                 onClick={() => setCurrentStep(Step.ASSIGN)}
@@ -297,21 +298,21 @@ const App: React.FC = () => {
 
       case Step.ASSIGN:
         return (
-          <div className="max-w-4xl mx-auto space-y-6 pb-32 px-1">
-            <div className="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-100">
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <div className="max-w-4xl mx-auto flex flex-col gap-6 px-1">
+            <div className="bg-white p-5 sm:p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                   <h2 className="text-xl font-black text-slate-900">Assign Items</h2>
                   <p className="text-slate-500 text-xs mt-1">Assign portions or use "Free Split" to share equally.</p>
                 </div>
                 {capturedImage && (
-                  <button onClick={() => setShowImagePreview(!showImagePreview)} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-xl font-bold text-xs">
+                  <button onClick={() => setShowImagePreview(!showImagePreview)} className="px-4 py-2 bg-slate-50 text-slate-600 rounded-2xl font-bold text-xs">
                     {showImagePreview ? 'Hide Photo' : 'Show Photo'}
                   </button>
                 )}
               </div>
               {showImagePreview && capturedImage && (
-                <div className="mb-6 rounded-2xl overflow-hidden border border-slate-100 shadow-inner bg-slate-50">
+                <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-inner bg-slate-50">
                   <img src={capturedImage} alt="Receipt" className="max-h-80 w-full object-contain" />
                 </div>
               )}
@@ -327,7 +328,7 @@ const App: React.FC = () => {
                 />
               )}
             </div>
-            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/90 backdrop-blur-xl border-t border-slate-100 flex justify-between items-center z-50">
+            <div className="fixed left-0 right-0 bottom-[72px] sm:bottom-[112px] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white/90 backdrop-blur-xl border-t border-slate-100 flex justify-between items-center z-50">
               <button onClick={() => setCurrentStep(Step.PEOPLE)} className="text-slate-400 font-bold text-sm px-4">Back</button>
               <button onClick={handleFinishSplit} className="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-black text-sm shadow-xl hover:bg-indigo-700 active:scale-95 transition-all">
                 Finish Split
@@ -338,10 +339,10 @@ const App: React.FC = () => {
 
       case Step.SUMMARY:
         return (
-          <div className="max-w-4xl mx-auto pb-24 px-1">
+          <div className="max-w-4xl mx-auto flex flex-col gap-12 px-1">
             {receiptData && <Summary ref={summaryRef} receiptData={receiptData} people={people} placeName={placeName} assignments={assignments} />}
-            <div className="mt-12 space-y-6 max-w-sm mx-auto px-4">
-              <button onClick={handleShare} disabled={isExporting} className="w-full bg-indigo-600 text-white px-8 py-5 rounded-3xl font-black shadow-2xl hover:bg-indigo-700 active:scale-95 transition-all">
+            <div className="flex flex-col gap-6 max-w-sm mx-auto px-4">
+              <button onClick={handleShare} disabled={isExporting} className="w-full bg-indigo-600 text-white px-8 py-5 rounded-2xl font-black shadow-2xl hover:bg-indigo-700 active:scale-95 transition-all">
                 {isExporting ? 'Generating...' : 'Share Split as PDF'}
               </button>
               <div className="grid grid-cols-2 gap-3">
@@ -358,8 +359,8 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12 overflow-x-hidden">
-      <header className="py-2 sticky top-0 z-50 px-safe transition-all border-b bg-white border-slate-100 shadow-sm">
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden flex flex-col gap-0 pb-20 sm:pb-24">
+      <header className="py-2 sticky top-0 z-50 px-safe transition-all border-b bg-white border-slate-100 shadow-sm flex-shrink-0">
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-16 h-16 sm:w-20 sm:h-20">
@@ -369,10 +370,14 @@ const App: React.FC = () => {
           </div>
         </div>
       </header>
-      <main className="max-w-6xl mx-auto px-4">{renderContent()}</main>
+      <main className={`max-w-6xl mx-auto px-4 flex-1 w-full py-8 ${currentStep === Step.PEOPLE || currentStep === Step.ASSIGN ? 'pb-40 sm:pb-48' : ''}`}>{renderContent()}</main>
+      <GoogleAdsBanner
+        adFormat="auto"
+        className="no-print"
+      />
       {confirmConfig && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-md">
-          <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center">
+          <div className="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl text-center">
             <h2 className="text-2xl font-black text-slate-900 mb-3">{confirmConfig.title}</h2>
             <p className="text-slate-500 font-bold mb-8">{confirmConfig.message}</p>
             <div className="flex flex-col gap-3">

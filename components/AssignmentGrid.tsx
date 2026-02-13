@@ -151,7 +151,7 @@ const AssignmentGrid: React.FC<AssignmentGridProps> = ({
         })}
       </div>
 
-      <div className="bg-indigo-50/50 p-5 rounded-3xl border border-indigo-100/50 space-y-3">
+      <div className="bg-indigo-50/50 p-5 rounded-[2rem] border border-indigo-100/50 space-y-3">
         <div className="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
           <span>Taxes & Fees</span>
           <span className="font-mono text-indigo-600">EGP {(receiptData.tax + receiptData.serviceCharge).toFixed(2)}</span>

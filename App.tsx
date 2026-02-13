@@ -246,7 +246,7 @@ const App: React.FC = () => {
           <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
           <div className="space-y-1">
             <p className="text-slate-800 font-black text-lg">Processing Receipt</p>
-            <p className="text-slate-500 text-sm">Gemini AI is reading your items...</p>
+            <p className="text-slate-500 text-sm">Your receipt is being processed...</p>
           </div>
         </div>
       );

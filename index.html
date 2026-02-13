@@ -1,39 +1,46 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>الحساب يجمع</title>
-    <!-- Import Cairo font for superior Arabic shaping support and modern English look -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-<style>
-  :root {
-    --safe-area-inset-bottom: env(safe-area-inset-bottom);
-  }
-  body {
-    padding-bottom: var(--safe-area-inset-bottom);
-    font-family: 'Cairo', sans-serif;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-  }
-  @media print {
-    .no-print {
-      display: none !important;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>الحساب يجمع</title>
+  <!-- Import Cairo font for superior Arabic shaping support and modern English look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1380104272543662"
+    crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --safe-area-inset-bottom: env(safe-area-inset-bottom);
     }
-  }
-  /* Helper for Arabic shaping in PDF/Canvas */
-  .arabic-shaping {
-    font-feature-settings: "kern", "liga", "clig", "calt";
-  }
-</style>
+
+    body {
+      padding-bottom: var(--safe-area-inset-bottom);
+      font-family: 'Cairo', sans-serif;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Helper for Arabic shaping in PDF/Canvas */
+    .arabic-shaping {
+      font-feature-settings: "kern", "liga", "clig", "calt";
+    }
+  </style>
 </head>
+
 <body class="bg-slate-50 text-slate-900 min-h-screen">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

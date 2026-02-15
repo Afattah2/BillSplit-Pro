@@ -364,7 +364,7 @@ const App: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-16 h-16 sm:w-20 sm:h-20">
-              <img src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" alt="Logo" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-xl font-black tracking-tight text-black">الحساب يجمع</h1>
           </div>

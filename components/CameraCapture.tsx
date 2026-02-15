@@ -43,7 +43,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
       <div className="w-full flex flex-col items-center text-center">
         <div className="w-full max-w-[600px] flex-shrink-0 mt-6">
           <img 
-            src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
+            src="/logo.png" 
             alt="App Logo" 
             className="w-full h-full object-contain"
           />

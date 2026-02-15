@@ -141,7 +141,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
       <div className="w-full flex flex-col items-center text-center gap-3 px-4 overflow-visible">
         <div className="w-full max-w-[600px] flex-shrink-0 mt-6">
           <img 
-            src="https://i.postimg.cc/L8RmBZ5T/Chat-GPT-Final-2.png" 
+            src="/logo.png" 
             alt="App Logo" 
             className="w-full h-full object-contain"
           />

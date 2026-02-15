@@ -20,14 +20,6 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
   const reportRef = useRef<HTMLDivElement>(null);
   
   const totalItemsSubtotal = receiptData.items.reduce((sum, item) => sum + item.price, 0);
-
-  // Reconcile with receipt total: extracted items + tax + service may not sum to receipt total
-  // (e.g. tax/service mis-extracted). Use receipt total as source of truth so remaining is ~0 when fully assigned.
-  const extractedTotal = totalItemsSubtotal + receiptData.tax + receiptData.serviceCharge;
-  const totalMismatch = Math.abs(receiptData.total - extractedTotal);
-  const effectiveTax = totalMismatch > 0.02
-    ? receiptData.total - totalItemsSubtotal - receiptData.serviceCharge
-    : receiptData.tax;
   
   // Custom date formatting for DD-MMM-YYYY
   const dateObj = new Date();
@@ -54,7 +46,7 @@ const Summary = forwardRef<SummaryHandle, SummaryProps>(({ receiptData, people, 
     });
 
     const proportion = totalItemsSubtotal > 0 ? personalSubtotal / totalItemsSubtotal : 0;
-    const personalTax = effectiveTax * proportion;
+    const personalTax = receiptData.tax * proportion;
     const personalService = receiptData.serviceCharge * proportion;
     const grandTotal = personalSubtotal + personalTax + personalService;
 

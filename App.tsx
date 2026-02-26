@@ -359,7 +359,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 overflow-x-hidden flex flex-col gap-0 pb-20 sm:pb-24">
+    <div className="min-h-screen bg-slate-50 overflow-x-hidden flex flex-col gap-0 pb-20 sm:pb-24" dir="ltr">
       <header className="py-2 sticky top-0 z-50 px-safe transition-all border-b bg-white border-slate-100 shadow-sm flex-shrink-0">
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">

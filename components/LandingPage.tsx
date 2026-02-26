@@ -473,7 +473,7 @@ export default function LandingPage() {
   const goToApp = () => navigate('/app');
 
   return (
-    <div className="min-h-screen pb-20 sm:pb-24">
+    <div className="min-h-screen pb-20 sm:pb-24" dir="rtl">
       <Navbar onStartApp={goToApp} />
       <Hero onOpenVideo={() => setIsVideoOpen(true)} onStartApp={goToApp} />
       <ProblemSolution />
